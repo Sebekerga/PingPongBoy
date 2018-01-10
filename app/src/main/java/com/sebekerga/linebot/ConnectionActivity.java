@@ -2,6 +2,7 @@ package com.sebekerga.linebot;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,16 +35,16 @@ public class ConnectionActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Toast.makeText(getApplicationContext(), boundedDevicesList.get(i).getName(), Toast.LENGTH_SHORT).show();
 
-//                BluetoothSocket bluetoothSocket = null;
-//                try {
-//                    bluetoothSocket = boundedDevicesList.get(i).createInsecureRfcommSocketToServiceRecord(boundedDevicesList.get(i).getUuids()[0].getUuid());
-//                    bluetoothSocket.connect();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                    Toast.makeText(getApplicationContext(), "Error connecting to device", Toast.LENGTH_SHORT).show();
-//                }
-//
-//                SocketHandler.setSocket(bluetoothSocket);
+                BluetoothSocket bluetoothSocket = null;
+                try {
+                    bluetoothSocket = boundedDevicesList.get(i).createInsecureRfcommSocketToServiceRecord(boundedDevicesList.get(i).getUuids()[0].getUuid());
+                    bluetoothSocket.connect();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Error connecting to device", Toast.LENGTH_SHORT).show();
+                }
+
+                SocketHandler.setSocket(bluetoothSocket);
                 startActivity(new Intent(ConnectionActivity.this, MainActivity.class));
             }
         });

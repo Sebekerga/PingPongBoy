@@ -12,20 +12,20 @@
         android:id="@+id/powerSeekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1" />
+        android:layout_weight="0" />
 
     <org.opencv.android.JavaCameraView
         android:id="@+id/cameraView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:layout_weight="1"
         android:visibility="gone"
         opencv:camera_id="any"
         opencv:show_fps="true" />
 
     <SeekBar
-        android:id="@+id/kSeekBar"
+        android:id="@+id/threshSeekBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1" />
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

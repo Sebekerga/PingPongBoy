@@ -13,7 +13,7 @@ public class SocketHandler {
         SocketHandler.socket = socket;
     }
 
-    public BluetoothSocket getSocket(){
+    public static BluetoothSocket getSocket(){
         return socket;
     }
 }
