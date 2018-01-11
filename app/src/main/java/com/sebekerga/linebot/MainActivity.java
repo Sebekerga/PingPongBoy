@@ -23,6 +23,9 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +36,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     SeekBar threshSeekBar, powerSeekBar;
     int thresh, power;
     BluetoothSocket bluetoothSocket;
+    InputStream inputStream;
+    OutputStream outputStream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +91,12 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         });
 
         bluetoothSocket = SocketHandler.getSocket();
+        try {
+            inputStream = bluetoothSocket.getInputStream();
+            outputStream = bluetoothSocket.getOutputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -148,9 +159,17 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         MidX /= counter;
         MidY /= counter;
 
+        int dif = rows/2 - MidY;
+        if(dif > 100) dif = 100;
+        else if(dif < -100) dif = -100;
+
+        setSpeed((byte) dif, (byte) dif);
+
         Imgproc.line(workArea, new Point(MidX, MidY), new Point(MidX, MidY), new Scalar(255, 70, 70, 255), 5);
 
         Mat dst = grey.clone();
+
+        getDistance();
 
         return dst;
     }
@@ -181,6 +200,26 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     }
 
     public void setSpeed(byte motorA, byte motorB){
+        byte[] power = new byte[] {motorA, motorB};
+        try {
+            outputStream.write(power);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Log.i("Power", Integer.toString(power[0]));
+    }
 
+    public int getDistance(){
+        int distance = 0;
+
+        try {
+            while(inputStream.available() != 0)
+                distance = inputStream.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Log.i("Distance", Integer.toString(distance));
+        return distance;
     }
 }
