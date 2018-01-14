@@ -156,8 +156,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             MidY += pcontours[i].y;
         }
 
-        MidX /= counter;
-        MidY /= counter;
+        if(counter != 0) {
+            MidX /= counter;
+            MidY /= counter;
+        }
 
         int dif = rows/2 - MidY;
         if(dif > 100) dif = 100;
