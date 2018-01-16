@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/LineBot.iml" filepath="$PROJECT_DIR$/LineBot.iml" />
+      <module fileurl="file://C:\Work\PingPongBoy\LineBot.iml" filepath="C:\Work\PingPongBoy\LineBot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PingPongBoy.iml" filepath="$PROJECT_DIR$/PingPongBoy.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/openCVLibrary330/openCVLibrary330.iml" filepath="$PROJECT_DIR$/openCVLibrary330/openCVLibrary330.iml" />
     </modules>
