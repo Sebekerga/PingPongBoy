@@ -3,9 +3,11 @@ package com.sebekerga.linebot;
 import android.bluetooth.BluetoothSocket;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 
@@ -35,6 +37,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private Mat mIntermediateMat;
     SeekBar threshSeekBar, powerSeekBar;
     int thresh, power;
+    public static int k = 1, n = 3;
+    boolean starter = false;
     BluetoothSocket bluetoothSocket;
     InputStream inputStream;
     OutputStream outputStream;
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         setContentView(R.layout.activity_main);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         mOpenCvCameraView = (JavaCameraView) findViewById(R.id.cameraView);
+
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
 
@@ -71,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         });
         powerSeekBar = (SeekBar) findViewById(R.id.powerSeekBar);
         powerSeekBar.setMax(100);
-        powerSeekBar.setProgress(80);
+        powerSeekBar.setProgress(30);
         power = powerSeekBar.getProgress();
         powerSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -97,6 +102,24 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        mOpenCvCameraView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!starter){
+                    starter = true;
+                }
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        starter = true;
+                        initEV3();
+                    }
+                }, 30 * 1000);
+            }
+        });
+
     }
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -161,11 +184,12 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             MidY /= counter;
         }
 
-        int dif = rows/2 - MidY;
-        if(dif > 100) dif = 100;
-        else if(dif < -100) dif = -100;
+        int dif = (MidY - rows/2) * k/n;
+        if(dif > power) dif = power;
+        else if(dif < -power) dif = -power;
 
-        setSpeed((byte) dif, (byte) dif);
+        if(starter)
+            setSpeed((byte) dif, (byte) dif);
 
         Imgproc.line(workArea, new Point(MidX, MidY), new Point(MidX, MidY), new Scalar(255, 70, 70, 255), 5);
 
@@ -202,20 +226,32 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     }
 
     public void setSpeed(byte motorA, byte motorB){
-        byte[] power = new byte[] {motorA, motorB};
+        byte power[] = {0x0a, 0x00, 0x00, 0x00, (byte) 0x80, 0x00, 0x00, (byte) 0xA4, 0x00, 0x02, (byte) 0x81, motorA,
+                        0x0a, 0x00, 0x00, 0x00, (byte) 0x80, 0x00, 0x00, (byte) 0xA4, 0x00, 0x04, (byte) 0x81, motorB};
         try {
             outputStream.write(power);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.i("Power", Integer.toString(power[0]));
+        Log.i("Power", Byte.toString(motorA));
+    }
+
+    public void initEV3(){
+        byte power[] = {0x08, 0x00, 0x00, 0x00, (byte) 0x80, 0x00, 0x00, (byte) 0xA6, 0x00, 0x02,
+                0x08, 0x00, 0x00, 0x00, (byte) 0x80, 0x00, 0x00, (byte) 0xA6, 0x00, 0x04};
+        try {
+            outputStream.write(power);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Log.i("Power", "Started");
     }
 
     public int getDistance(){
         int distance = 0;
 
         try {
-            while(inputStream.available() != 0)
+            while(inputStream.available() > 0)
                 distance = inputStream.read();
         } catch (IOException e) {
             e.printStackTrace();
