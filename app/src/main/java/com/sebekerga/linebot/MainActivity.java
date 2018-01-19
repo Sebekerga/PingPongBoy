@@ -246,18 +246,4 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         }
         Log.i("Power", "Started");
     }
-
-    public int getDistance(){
-        int distance = 0;
-
-        try {
-            while(inputStream.available() > 0)
-                distance = inputStream.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Log.i("Distance", Integer.toString(distance));
-        return distance;
-    }
 }
